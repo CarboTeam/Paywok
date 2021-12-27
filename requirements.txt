@@ -1,0 +1,8 @@
+Django~=3.2.8
+requests
+django-import-export
+xlsxwriter
+celery
+redis
+django-celery-beat
+django-cleanup
