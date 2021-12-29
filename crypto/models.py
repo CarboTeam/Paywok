@@ -118,12 +118,12 @@ class PaymentReceipts(TimeStampMixin):
             self.national_id = self.user_profile.national_id
             self.taxpayer_id = self.user_profile.taxpayer_id
 
-            self.home_country = self.user.profile.home_country
-            self.home_province = self.user.profile.home_province
-            self.home_city = self.user.profile.home_city
-            self.home_zip = self.user.profile.home_zip
-            self.home_address1 = self.user.profile.home_address1
-            self.home_address2 = self.user.profile.home_address2
+            self.home_country = self.user_profile.home_country
+            self.home_province = self.user_profile.home_province
+            self.home_city = self.user_profile.home_city
+            self.home_zip = self.user_profile.home_zip
+            self.home_address1 = self.user_profile.home_address1
+            self.home_address2 = self.user_profile.home_address2
 
             self.btc_address = self.user_profile.btc_address
             self.payment_amount = self.user_profile.payment_amount
@@ -133,12 +133,12 @@ class PaymentReceipts(TimeStampMixin):
             self.company = self.user_profile.company
             self.company_id = self.user_profile.company_id
 
-            self.business_country = self.user.profile.business_country
-            self.business_province = self.user.profile.business_province
-            self.business_city = self.user.profile.business_city
-            self.business_zip = self.user.profile.business_zip
-            self.business_address1 = self.user.profile.business_address1
-            self.business_address2 = self.user.profile.business_address2
+            self.business_country = self.user_profile.business_country
+            self.business_province = self.user_profile.business_province
+            self.business_city = self.user_profile.business_city
+            self.business_zip = self.user_profile.business_zip
+            self.business_address1 = self.user_profile.business_address1
+            self.business_address2 = self.user_profile.business_address2
 
         super().save(*args, **kwargs)
 

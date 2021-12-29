@@ -6,21 +6,26 @@ from crypto.btc_services import *
 
 @shared_task
 def provide_payment():
-    #################
-    # MAIN #
-    #################
+    walletName = "paywokWallet"
+    ensure_bitcoind_running(False)
+    
+    # Create new wallet.
+    try:
+        run_subprocess("/usr/local/bin/bitcoin-cli", "createwallet", walletName)
+    except Exception as e:
+        print(e)
 
-    # walletName = ""
-    # ensure_bitcoind_running()
-    # run_subprocess("/usr/local/bin/bitcoin-cli", "-datadir=/mnt/volume_lon1_01/bitcoin-core", "loadwallet", walletName)
+    #Do "unload wallet" command just in case there is any unwanted wallet loaded up
+    run_subprocess("/usr/local/bin/bitcoin-cli", "unloadwallet")
+    #Load the freshly created wallet
+    run_subprocess("/usr/local/bin/bitcoin-cli", "loadwallet", walletName)
 
     minFee = getMinFee()
     for payee in PayeeProfile.objects.filter(provide_payment=True).all():
         btc_price = get_btc_price(payee.payment_currency)
         btc_amount = convert_to_btc(payee.payment_amount, btc_price)
 
-        bitcoin_cli_call("-datadir=/mnt/volume_lon1_01/bitcoin-core",
-                         "-named",
+        bitcoin_cli_call("-named",
                          "sendtoaddress",
                          "address=" + payee.btc_address,
                          "amount=" + str(btc_amount), "fee_rate=" + str(minFee))
@@ -35,21 +40,27 @@ def provide_payment():
 
 @shared_task
 def provide_payment_testnet():
-    #################
-    # TESTNET #
-    #################
+    
+    walletName = "paywokWalletTest"
+    ensure_bitcoind_running(True)
+    
+    # Create new wallet.
+    try:
+        run_subprocess("/usr/local/bin/bitcoin-cli", "-testnet", "createwallet", walletName)
+    except Exception as e:
+        print(e)
 
-    # walletName = ""
-    # ensure_bitcoind_running()
-    # run_subprocess("/usr/local/bin/bitcoin-cli", "-datadir=/mnt/volume_lon1_01/bitcoin-core", "loadwallet", walletName)
+    #Do "unload wallet" command just in case there is any unwanted wallet loaded up
+    run_subprocess("/usr/local/bin/bitcoin-cli", "-testnet", "unloadwallet")
+    #Load the freshly created wallet
+    run_subprocess("/usr/local/bin/bitcoin-cli", "-testnet", "loadwallet", walletName)
 
     minFee = getMinFee()
     for payee in PayeeProfile.objects.filter(provide_payment=True).all():
         btc_price = get_btc_price(payee.payment_currency)
         btc_amount = convert_to_btc(payee.payment_amount, btc_price)
 
-        bitcoin_cli_call("-datadir=/mnt/volume_lon1_01/bitcoin-core",
-                         "-testnet",
+        bitcoin_cli_call("-testnet",
                          "-named",
                          "sendtoaddress",
                          "address=" + payee.btc_address,

@@ -24,8 +24,10 @@ def run_subprocess(exe, *args):
     verbose("bitcoin cli call:\n  {0}\n".format(" ".join(shlex.quote(x) for x in cmd_list)))
     with subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1024) as pipe:
         output, _ = pipe.communicate()
-    output = output.decode('ascii')
-    retcode = pipe.returncode
+    try:
+        output = output.decode('ascii')
+    except Exception as e:
+        print(e)    retcode = pipe.returncode
     verbose("bitcoin cli call return code: {0}  output:\n  {1}\n".format(retcode, output))
     return (cmd_list, retcode, output)
 
@@ -62,17 +64,21 @@ def ensure_bitcoind_running():
     """
     # start bitcoind.  If another bitcoind process is already running, this will just print an error
     # message (to /dev/null) and exit.
-    #
-    # -connect=0.0.0.0 because we're doing local operations only (and have no network connection anyway)
-    bitcoind_call("-daemon", "-datadir=/mnt/volume_lon1_01/bitcoin-core", "-connect=0.0.0.0")
 
+    if isTestnet:
+        bitcoind_call("-daemon", "-testnet")
+    else:
+        bitcoind_call("-daemon")
     # verify bitcoind started up and is functioning correctly
     times = 0
     while times <= 100:
         times += 1
-        run_subprocess("/usr/local/bin/bitcoind", "-daemon", "-datadir=/mnt/volume_lon1_01/bitcoin-core")
-        if bitcoin_cli_call("-datadir=/mnt/volume_lon1_01/bitcoin-core", "getnetworkinfo") == 0:
-            return
+        if isTestnet:
+            if bitcoin_cli_call("-testnet", "getnetworkinfo") == 0:
+                return
+        else:
+            if bitcoin_cli_call("getnetworkinfo") == 0:
+                return
         time.sleep(0.5)
 
     raise Exception("Timeout while starting bitcoin server")
