@@ -27,7 +27,8 @@ def run_subprocess(exe, *args):
     try:
         output = output.decode('ascii')
     except Exception as e:
-        print(e)    retcode = pipe.returncode
+        print(e)
+    retcode = pipe.returncode
     verbose("bitcoin cli call return code: {0}  output:\n  {1}\n".format(retcode, output))
     return (cmd_list, retcode, output)
 
