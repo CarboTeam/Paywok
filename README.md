@@ -4,6 +4,22 @@ Paywok is a bitcoin-based payroll system. You can use Paywok to pay employees, f
 
 Technically, Paywok uses the Django admin panel as a frontend to interact with a Python script that then uses Bitcoin Core's ```bitcoin-cli``` to make transactions. Bitcoin operations take place in the ```crypto/tasks.py``` file using the util functions from ```crypto/btc_services.py```
 
+# Table of contents
+- [Paywok](#paywok)
+- [Table of contents](#table-of-contents)
+- [Requirements](#requirements)
+- [Bitcoin Core installation and setup](#bitcoin-core-installation-and-setup)
+  * [Download and install Bitcoin Core](#download-and-install-bitcoin-core)
+  * [Download the blockchain](#download-the-blockchain)
+  * [Create and fund the wallet](#create-and-fund-the-wallet)
+- [Python and Django installation and setup](#python-and-django-installation-and-setup)
+  * [Install packages](#install-packages)
+  * [Create admin user](#create-admin-user)
+  * [Django run command](#django-run-command)
+  * [Celery run command](#celery-run-command)
+  * [Celery Beat run command](#celery-beat-run-command)
+  * [Django Admin panel operations](#django-admin-panel-operations)
+  
 # Requirements
 
 - We've tested these instructions on Linux (specifically Ubuntu 20.04). However, Paywok should work on any OS that's supported by Bitcoin Core and Redis. 
@@ -11,7 +27,7 @@ Technically, Paywok uses the Django admin panel as a frontend to interact with a
 - [python 3.x](https://www.python.org/downloads/)
 - [redis](https://redis.io/download)
 
-# Installation instructions
+# Bitcoin Core installation and setup
 ## Download and install Bitcoin Core
 
 You can find detailed installation instructions at https://bitcoin.org/en/full-node#linux-instructions, but we've included a summary here. 
@@ -81,7 +97,7 @@ You can now use your favorite wallet to send bitcoin to the receiving address. A
 You will be using this balance to pay all your payees (employees, freelancers, service providers, etc), so make sure there's enough for your first payment. After you've checked that everything works well, you might want to fund the wallet with a few months' worth of payments. 
 
 
-# Django/Python installation
+# Python and Django installation and setup
 
 ## Install packages
 ```pip install -r requirements.txt```
@@ -102,7 +118,9 @@ You will be using this balance to pay all your payees (employees, freelancers, s
 ## Celery Beat run command
 ```celery -A paywok beat --scheduler django_celery_beat.schedulers:DatabaseScheduler```
 
-## Go to Admin panel:
+## Django Admin panel operations
+
+You can access it here:
 
 http://localhost:8000/admin
 
@@ -110,10 +128,10 @@ Or, if you are using a hosting company:
 
 http://<IPofYourServer>:8000/admin
 
-#### Open the tab 'CRYPTO' -> 'Payees' to add and manage payees info
+Open the tab 'CRYPTO' -> 'Payees' to add and manage payees info
 Once all desired payees are added, a scheduler must be set to automatically make the payments.
 
-#### Open the tab 'PERIODIC TASKS' -> 'Periodic tasks'
+Open the tab 'PERIODIC TASKS' -> 'Periodic tasks'
 
 In 'Task (registered)' select _crypto.tasks.provide_payment_ for mainnet payments or _crypto.tasks.provide_payment_testnet_ to make payments on the Bitcoin testnet.
 
@@ -130,7 +148,7 @@ Basically, the format is as follows:
 
 Where an asterisc in any of the fields means to do it in every minute/hour/day/month/day-of-week
 
-#### Examples:
+Examples:
 - The 21st of every month at 8:00 pm: 0 20 21 * *
 - Every Sunday at midnight (00:00 am): 0 0 * * 0
 
