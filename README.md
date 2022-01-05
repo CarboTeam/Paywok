@@ -1,55 +1,57 @@
 # Paywok
-Payroll system for recurring Bitcoin payments. Pay employees, freelancers, service providers and others monthly or biweekly.
 
-How does it work?
+Paywok is a bitcoin-based payroll system. You can use Paywok to pay employees, freelancers and service providers on a regular basis, for example monthly or biweekly.
 
-Paywok uses the Django Admin panel as a frontend to interact with a python script which uses ```bitcoin-cli``` to make transactions. 
-All the Bitcoin actions take place in the file ```crypto/tasks.py``` using the util functions from ```crypto/btc_services.py```
+Technically, Paywok uses the Django admin panel as a frontend to interact with a Python script that then uses Bitcoin Core's ```bitcoin-cli``` to make transactions. Bitcoin operations take place in the ```crypto/tasks.py``` file using the util functions from ```crypto/btc_services.py```
 
 # Requirements
+
+- We've tested these instructions on Linux (specifically Ubuntu 20.04). However, Paywok should work on any OS that's supported by Bitcoin Core and Redis. 
+- [Bitcoin Core](https://bitcoin.org/en/download) running as a full node, which means you will need at least 400 GB of disk space to download the blockchain, and a reasonably fast machine. For more information, please head over to https://bitcoin.org/en/full-node. 
 - [python 3.x](https://www.python.org/downloads/)
 - [redis](https://redis.io/download)
-- [Bitcoin Core](https://bitcoin.org/en/download) with a full node (whole blockchain downloaded)
 
-# Bitcoin Core Installation
+# Installation instructions
+## Download and install Bitcoin Core
 
-Opening the temporary directory:
+You can find detailed installation instructions at https://bitcoin.org/en/full-node#linux-instructions, but we've included a summary here. 
+
+We recommend downloading and uncompressing Bitcoin Core in the temp directory:
 
 ```cd /tmp```
 
-Now we need to install the tar file.
-
-This commands installs version 22.0 (latest as of the date this was written).
-In order to download latest versions, we would need to change every intance of "22.0" by whatever release we are trying to download. 
+As of this writing (January 2022), the latest Bitcoin Core version is 22.0. You should always use the latest version. 
 
 ```wget https://bitcoin.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz -O bitcoin.tar.gz```
 
-Uncompressing the downloaded file:
+Do this to uncompress the file you just downloaded:
 
 ``` tar -xvf bitcoin.tar.gz```
 
-Installing:
+Now you can install Bitcoin Core:
 
 ``` sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-22.0/ /bin/*```
 
-Finally, to check we did everything correctly, this should give us the version of Bitcoin Core we just installed:
+Finally, let's check our Bitcoin Core version check to make sure we did everything correctly:
 
 ``` bitcoind --version```
 
 
-# Funding the wallet
+## Download the blockchain
 
-Before creating the wallet, we first need to download the full Blockchain in order to do so, we just have to run the following command:
+For simplicity, these instructions assume you're using the same machine to run Django and Bitcoin Core. You might want to use different machines for various reasons (security, hard drive requirements, etc). In any case, you will need to fund your wallet.
+
+Before creating the wallet, we first need to download the blockchain:
 
 ``` bitcoind --daemon```
 
-This will start the program and it will be running on the background. 
+This will run ``` bitcoind``` on the background. 
 
-In order to check when the synchronization is complete, we run this command: 
+You will need to wait till the synchronization is complete, which might take hours or even days depending on your internet speed and hardware. You can check how's it going with this command: 
 
 ``` bitcoin-cli getblockchaininfo```
 
-And the output will be something like this:
+The output will be something like this:
 ```
   "chain": "test",
   "blocks": 2134480,
@@ -60,43 +62,47 @@ And the output will be something like this:
   "verificationprogress": 0.9999999620579896,
 ```
 
-When ```verificationprogress``` is really, really close to 1 (it will likely never reach) the we can say the blockchain is fully downloaded. 
-(The blockchain can take up 2 weeks to fully download depending on internet speed and hardware used)
+When ```verificationprogress``` is really, really close to 1 (like in the example above), we can assume that the blockchain is fully downloaded.
 
-To create a wallet:
+## Create and fund the wallet
+
+After you've downloaded and fully synchronized the blockchain, you can create the wallet that you'll use for payments:
 
 ```bitcoin-cli createwallet paywokWallet```
 
-To get a new address:
+Then you'll need a receiving address:
 
 ```bitcoin-cli getnewaddress```
 
-If you send bitcoin to the given address and wait one blockchain confirmation, running the following command should give you your balance:
+You can now use your favorite wallet to send bitcoin to the receiving address. After the transaction is complete, you should be able to see the new balance using the following command:
 
 ```bitcoin-cli getbalances```
 
+You will be using this balance to pay all your payees (employees, freelancers, service providers, etc), so make sure there's enough for your first payment. After you've checked that everything works well, you might want to fund the wallet with a few months' worth of payments. 
 
-# Installation and Setup
-###### Install packages
+
+# Django/Python installation
+
+## Install packages
 ```pip install -r requirements.txt```
 
 ```python3 manage.py makemigrations```
 
 ```python3 manage.py migrate```
 
-###### Create admin user
+## Create admin user
 ```python3 manage.py createsuperuser```
 
-###### Django run command
+## Django run command
 ```python3 manage.py runserver```
 
-###### Celery run command
+## Celery run command
 ```celery -A paywok worker --loglevel=INFO```
 
-###### Celery Beat run command
+## Celery Beat run command
 ```celery -A paywok beat --scheduler django_celery_beat.schedulers:DatabaseScheduler```
 
-### Go to Admin panel:
+## Go to Admin panel:
 
 http://localhost:8000/admin
 
