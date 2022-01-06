@@ -12,7 +12,12 @@ Technically, Paywok uses the Django admin panel as a frontend to interact with a
   * [Download and install Bitcoin Core](#download-and-install-bitcoin-core)
   * [Download the blockchain](#download-the-blockchain)
   * [Create and fund the wallet](#create-and-fund-the-wallet)
+- [Redis installation and setup](redis-installation-and-setup)
+  * [Install redis](#install-redis)
+  * [Run redis-server](#run-redis-server)
+  * [Check if Redis is working](#check-if-redis-is-working)
 - [Python and Django installation and setup](#python-and-django-installation-and-setup)
+  * [Install python](#install-python)
   * [Install packages](#install-packages)
   * [Create admin user](#create-admin-user)
   * [Django run command](#django-run-command)
@@ -95,9 +100,36 @@ You can now use your favorite wallet to send bitcoin to the receiving address. A
 ```bitcoin-cli getbalances```
 
 You will be using this balance to pay all your payees (employees, freelancers, service providers, etc), so make sure there's enough for your first payment. After you've checked that everything works well, you might want to fund the wallet with a few months' worth of payments. 
+# Redis installation and setup
 
+## Install redis
+```
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make
+```
+## Run redis-server
+```
+redis-server
+```
+## Check if Redis is working
+```
+redis-cli ping
+PONG
+```
+You can find full Redis Quick Start instructions [here](https://redis.io/topics/quickstart)
 
 # Python and Django installation and setup
+
+## Install python 3.x.y
+Project was created using python 3.10, which you can find and download [here](https://www.python.org/downloads/)
+
+Then download this git project:
+
+```git clone https://github.com/CarboTeam/Paywok.git```
+
+and run next commands in ```Paywok``` folder
 
 ## Install packages
 ```pip install -r requirements.txt```
