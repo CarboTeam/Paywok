@@ -12,7 +12,7 @@ Technically, Paywok uses the Django admin panel as a frontend to interact with a
   * [Download and install Bitcoin Core](#download-and-install-bitcoin-core)
   * [Download the blockchain](#download-the-blockchain)
   * [Create and fund the wallet](#create-and-fund-the-wallet)
-- [Redis installation and setup](redis-installation-and-setup)
+- [Redis installation and setup](#redis-installation-and-setup)
   * [Install redis](#install-redis)
   * [Run redis-server](#run-redis-server)
   * [Check if Redis is working](#check-if-redis-is-working)
