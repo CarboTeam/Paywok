@@ -1,11 +1,10 @@
-# Paywok
+<img src="./logo.svg"  width="300">
 
-Paywok is a bitcoin-based payroll system. You can use Paywok to pay employees, freelancers and service providers on a regular basis, for example monthly or biweekly.
+Paywok is a bitcoin-based payroll system which can be used to pay employees, freelancers and service providers on a regular basis, for example monthly or biweekly. Paywok also produces receipts that you can use for accounting purposes.
 
-Technically, Paywok uses the Django admin panel as a frontend to interact with a Python script that then uses Bitcoin Core's ```bitcoin-cli``` to make transactions. Bitcoin operations take place in the ```crypto/tasks.py``` file using the util functions from ```crypto/btc_services.py```
+Technically, Paywok uses the Django admin panel as a frontend to interact with a Python script that then uses Bitcoin Core's ```bitcoin-cli``` to make transactions. Bitcoin operations take place in the ```crypto/tasks.py``` file using the util functions from ```crypto/btc_services.py```.
 
 # Table of contents
-- [Paywok](#paywok)
 - [Table of contents](#table-of-contents)
 - [Requirements](#requirements)
 - [Bitcoin Core installation and setup](#bitcoin-core-installation-and-setup)
@@ -13,22 +12,22 @@ Technically, Paywok uses the Django admin panel as a frontend to interact with a
   * [Download the blockchain](#download-the-blockchain)
   * [Create and fund the wallet](#create-and-fund-the-wallet)
 - [Redis installation and setup](#redis-installation-and-setup)
-  * [Install redis](#install-redis)
-  * [Run redis-server](#run-redis-server)
+  * [Install Redis](#install-redis)
+  * [Starting Redis](#starting-redis)
   * [Check if Redis is working](#check-if-redis-is-working)
-- [Python and Django installation and setup](#python-and-django-installation-and-setup)
-  * [Install python](#install-python)
+- [Python-Django and Paywok installation](#python-django-and-paywok-installation)
+  * [Install python and download Paywok](#install-python-and-download-paywok)
   * [Install packages](#install-packages)
-  * [Create admin user](#create-admin-user)
+  * [Create an admin user](#create-an-admin-user)
   * [Django run command](#django-run-command)
   * [Celery run command](#celery-run-command)
   * [Celery Beat run command](#celery-beat-run-command)
-  * [Django Admin panel operations](#django-admin-panel-operations)
+- [Paywok configuration via the Django admin panel](#paywok-configuration-via-the-django-admin-panel)
   
 # Requirements
 
-- We've tested these instructions on Linux (specifically Ubuntu 20.04). However, Paywok should work on any OS that's supported by Bitcoin Core and Redis. 
-- [Bitcoin Core](https://bitcoin.org/en/download) running as a full node, which means you will need at least 400 GB of disk space to download the blockchain, and a reasonably fast machine. For more information, please head over to https://bitcoin.org/en/full-node. 
+We've tested these instructions on Linux (specifically Ubuntu 20.04). However, Paywok should work on any OS that's supported by Bitcoin Core and Redis. 
+- [Bitcoin Core](https://bitcoin.org/en/download) running as a full node, which means you will need at least 400 GB of disk space to download the blockchain, and a reasonably fast machine. For more information, please see https://bitcoin.org/en/full-node. 
 - [python 3.x](https://www.python.org/downloads/)
 - [redis](https://redis.io/download)
 
@@ -45,13 +44,13 @@ As of this writing (January 2022), the latest Bitcoin Core version is 22.0. You 
 
 ```wget https://bitcoin.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz -O bitcoin.tar.gz```
 
-Do this to uncompress the file you just downloaded:
+Let's uncompress the file we just downloaded:
 
 ``` tar -xvf bitcoin.tar.gz```
 
-Now you can install Bitcoin Core:
+Now we can install Bitcoin Core:
 
-``` sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-22.0/ /bin/*```
+``` sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-22.0/bin/*```
 
 Finally, let's check our Bitcoin Core version check to make sure we did everything correctly:
 
@@ -66,9 +65,7 @@ Before creating the wallet, we first need to download the blockchain:
 
 ``` bitcoind --daemon```
 
-This will run ``` bitcoind``` on the background. 
-
-You will need to wait till the synchronization is complete, which might take hours or even days depending on your internet speed and hardware. You can check how's it going with this command: 
+This will run ``` bitcoind``` on the background. You will need to wait till the synchronization is complete, which might take hours or even days depending on your internet speed and hardware. You can check the progress with this command: 
 
 ``` bitcoin-cli getblockchaininfo```
 
@@ -83,15 +80,15 @@ The output will be something like this:
   "verificationprogress": 0.9999999620579896,
 ```
 
-When ```verificationprogress``` is really, really close to 1 (like in the example above), we can assume that the blockchain is fully downloaded.
+When ```verificationprogress``` is extremely close to 1 (like in the example above), we can assume that the blockchain is fully downloaded.
 
 ## Create and fund the wallet
 
-After you've downloaded and fully synchronized the blockchain, you can create the wallet that you'll use for payments:
+After we've downloaded and fully synchronized the blockchain, we can create the wallet that we'll use for payments:
 
 ```bitcoin-cli createwallet paywokWallet```
 
-Then you'll need a receiving address:
+Then we'll need a receiving address:
 
 ```bitcoin-cli getnewaddress```
 
@@ -99,37 +96,39 @@ You can now use your favorite wallet to send bitcoin to the receiving address. A
 
 ```bitcoin-cli getbalances```
 
-You will be using this balance to pay all your payees (employees, freelancers, service providers, etc), so make sure there's enough for your first payment. After you've checked that everything works well, you might want to fund the wallet with a few months' worth of payments. 
+You will be using this balance to pay all your payees (employees, freelancers, service providers, etc), so make sure there's enough for your first payment. After you've checked that everything works well, you should fund the wallet with enough bitcoin to make your payments. 
+
 # Redis installation and setup
 
-## Install redis
+You can find the Redis quick start document [here](https://redis.io/topics/quickstart), but we've included a summary below.
+
+## Install Redis
 ```
 wget http://download.redis.io/redis-stable.tar.gz
 tar xvzf redis-stable.tar.gz
 cd redis-stable
 make
 ```
-## Run redis-server
+## Starting Redis
 ```
 redis-server
 ```
 ## Check if Redis is working
 ```
-redis-cli ping
+$ redis-cli ping
 PONG
 ```
-You can find full Redis Quick Start instructions [here](https://redis.io/topics/quickstart)
 
-# Python and Django installation and setup
+# Python-Django and Paywok installation
 
-## Install python 3.x.y
-Project was created using python 3.10, which you can find and download [here](https://www.python.org/downloads/)
+## Install python and download Paywok
+Paywok uses python 3.10. Please check if your distro already uses that version of python, otherwise you can download it [here](https://www.python.org/downloads/).
 
 Then download this git project:
 
 ```git clone https://github.com/CarboTeam/Paywok.git```
 
-and run next commands in ```Paywok``` folder
+Then run the following commands in the ```Paywok``` folder:
 
 ## Install packages
 ```pip install -r requirements.txt```
@@ -138,7 +137,7 @@ and run next commands in ```Paywok``` folder
 
 ```python3 manage.py migrate```
 
-## Create admin user
+## Create an admin user
 ```python3 manage.py createsuperuser```
 
 ## Django run command
@@ -150,26 +149,26 @@ and run next commands in ```Paywok``` folder
 ## Celery Beat run command
 ```celery -A paywok beat --scheduler django_celery_beat.schedulers:DatabaseScheduler```
 
-## Django Admin panel operations
+# Paywok configuration via the Django admin panel
 
-You can access it here:
+You can access Paywok here:
 
 http://localhost:8000/admin
 
-Or, if you are using a hosting company:
+Go to 'CRYPTO' -> 'Payees' to add your payees. 
 
-http://<IPofYourServer>:8000/admin
+Once you've added payees, you must configure a periodic task to automatically make the payments.
 
-Open the tab 'CRYPTO' -> 'Payees' to add and manage payees info
-Once all desired payees are added, a scheduler must be set to automatically make the payments.
+Go to 'PERIODIC TASKS' -> 'Periodic tasks'. 
 
-Open the tab 'PERIODIC TASKS' -> 'Periodic tasks'
+Click 'Add periodic task' (top right). 
 
-In 'Task (registered)' select _crypto.tasks.provide_payment_ for mainnet payments or _crypto.tasks.provide_payment_testnet_ to make payments on the Bitcoin testnet.
+In the 'Task (registered)' field, select _crypto.tasks.provide_payment_ for Bitcoin mainnet payments or _crypto.tasks.provide_payment_testnet_ to test payments on the Bitcoin testnet. We recommend starting with the Bitcoin testnet. 
+The 'Task (custom)' field can be left blank since it will autofil with the content of the registered task we just input. 
 
-In the 'Schedule' fields, there are several options. We recommend the 'Crontab Schedule' since it offers more personalization. 
+In the 'Schedule' section, you'll see several scheduling options. We recommend the 'Crontab Schedule' since it offers more personalization. 
 
-If you are not familiar with Cron, check out this quick [guide](https://crontab.guru/)
+If you are not familiar with Cron, check out this [guide](https://crontab.guru/).
 
 Basically, the format is as follows:
 - minute        (0-59)
@@ -178,11 +177,12 @@ Basically, the format is as follows:
 - month         (1-12)
 - day of week   (0-7)
 
-Where an asterisc in any of the fields means to do it in every minute/hour/day/month/day-of-week
+An asterisk in any of the fields' means that the task will run every minute/hour/day/month/day-of-week.
 
 Examples:
-- The 21st of every month at 8:00 pm: 0 20 21 * *
-- Every Sunday at midnight (00:00 am): 0 0 * * 0
+- The 21st of every month at 8pm: 0 20 21 * *
+- Every Sunday at midnight: 0 0 * * 0
 
-Click save and close the Admin browser tab. 
-If everything was done correctly, payments will be made automatically when indicated 
+Don't forget to save your periodic task.
+
+If you did everything correctly, the payment(s) will go out according to the schedule and you will be able to download the receipts from the Django/Paywok admin panel (Receipts, under Crypto).
