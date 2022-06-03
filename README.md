@@ -40,9 +40,9 @@ We recommend downloading and uncompressing Bitcoin Core in the temp directory:
 
 ```cd /tmp```
 
-As of this writing (January 2022), the latest Bitcoin Core version is 22.0. You should always use the latest version. 
+As of this writing (June 2022), the latest Bitcoin Core version is 23.0. You should always use the latest version. 
 
-```wget https://bitcoin.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz -O bitcoin.tar.gz```
+```wget https://bitcoincore.org/bin/bitcoin-core-23.0/bitcoin-23.0-x86_64-linux-gnu.tar.gz -O bitcoin.tar.gz```
 
 Let's uncompress the file we just downloaded:
 
@@ -50,7 +50,7 @@ Let's uncompress the file we just downloaded:
 
 Now we can install Bitcoin Core:
 
-``` sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-22.0/bin/*```
+``` sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-23.0/bin/*```
 
 Finally, let's check our Bitcoin Core version check to make sure we did everything correctly:
 
